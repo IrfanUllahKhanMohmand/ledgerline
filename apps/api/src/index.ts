@@ -8,14 +8,13 @@ app.use(express.json());
 app.get("/", (_req, res) => {
   res.json({
     name: "ledgerline-api",
-    status: "scaffold",
-    models: ["User", "Item", "UploadJob"],
+    status: "ok",
   });
 });
 
 app.listen(port, () => {
-  const demoUser = createUser({ email: "scaffold@ledgerline.dev" });
-  const demoItem = createItem({ userId: demoUser.id, title: "sample receipt" });
+  const demoUser = createUser({ email: "maya@example.com" });
+  const demoItem = createItem({ userId: demoUser.id, title: "Cafe receipt" });
   const demoJob = enqueueUpload({ itemId: demoItem.id });
   console.log(`Ledgerline API listening on ${port} (job ${demoJob.id})`);
 });

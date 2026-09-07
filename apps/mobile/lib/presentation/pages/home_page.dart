@@ -5,10 +5,10 @@ import '../../domain/entities/item.dart';
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  static final _demoItem = Item(
-    id: 'item-scaffold',
-    userId: 'user-scaffold',
-    title: 'Sample receipt',
+  static final _item = Item(
+    id: 'item-receipt-1',
+    userId: 'user-maya',
+    title: 'Cafe receipt',
     status: ItemStatus.pending,
     attemptCount: 0,
     createdAt: DateTime.utc(2026, 9, 4),
@@ -24,19 +24,18 @@ class HomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Field capture',
+              'Your items',
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 8),
             const Text(
-              'Submit an item with a photo, then retry if the upload fails. '
-              'Auth and the capture flow come next.',
+              'Add a photo and a short note. If an upload fails, you can retry it.',
             ),
             const SizedBox(height: 24),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              title: Text(_demoItem.title),
-              subtitle: Text('Status: ${_demoItem.status.name}'),
+              title: Text(_item.title),
+              subtitle: Text('Status: ${_item.status.name}'),
             ),
           ],
         ),
