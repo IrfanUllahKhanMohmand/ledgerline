@@ -21,6 +21,12 @@ API + Postgres + MinIO:
 docker compose up --build
 ```
 
+## API
+
+```
+GET /health
+```
+
 Mobile (iOS, Android, or web):
 
 ```bash

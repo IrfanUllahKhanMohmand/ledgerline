@@ -1,20 +1,21 @@
-import express from "express";
-import { createItem, createUser, enqueueUpload } from "./models/index.js";
+import { createApp } from "./app.js";
+import { createPool, migrate } from "./db/migrate.js";
 
 const port = Number(process.env.PORT ?? 3001);
-const app = express();
-app.use(express.json());
 
-app.get("/", (_req, res) => {
-  res.json({
-    name: "ledgerline-api",
-    status: "ok",
+async function main() {
+  if (process.env.DATABASE_URL) {
+    const pool = createPool(process.env.DATABASE_URL);
+    await migrate(pool);
+    await pool.end();
+  }
+
+  createApp().listen(port, () => {
+    console.log(`Ledgerline API listening on ${port}`);
   });
-});
+}
 
-app.listen(port, () => {
-  const demoUser = createUser({ email: "maya@example.com" });
-  const demoItem = createItem({ userId: demoUser.id, title: "Cafe receipt" });
-  const demoJob = enqueueUpload({ itemId: demoItem.id });
-  console.log(`Ledgerline API listening on ${port} (job ${demoJob.id})`);
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
 });
