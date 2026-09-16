@@ -24,8 +24,14 @@ docker compose up --build
 ## API
 
 ```
-GET /health
+GET  /health
+POST /auth/register   { "email": "maya@example.com", "password": "at-least-8" }
+POST /auth/login      { "email": "maya@example.com", "password": "at-least-8" }
+POST /items           { "title": "Cafe receipt", "notes": "optional" }
+GET  /items
 ```
+
+Item routes need `Authorization: Bearer <token>`.
 
 Mobile (iOS, Android, or web):
 
