@@ -63,3 +63,43 @@ describe("auth and items", () => {
     assert.equal(response.status, 401);
   });
 });
+
+describe("upload queue", () => {
+  it("uploads an image and retries after a failure", async () => {
+    const api = app();
+    const registered = await request(api).post("/auth/register").send({
+      email: "maya@example.com",
+      password: "password12",
+    });
+    const token = registered.body.token as string;
+
+    const created = await request(api)
+      .post("/items")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ title: "Cafe receipt" });
+
+    const failed = await request(api)
+      .post(`/items/${created.body.id}/upload`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ imageKey: "fail-once:receipt.jpg" });
+    assert.equal(failed.status, 202);
+    assert.equal(failed.body.status, "failed");
+
+    const listed = await request(api)
+      .get("/upload-jobs")
+      .set("Authorization", `Bearer ${token}`);
+    assert.equal(listed.status, 200);
+    assert.equal(listed.body.length, 1);
+
+    const retried = await request(api)
+      .post(`/upload-jobs/${listed.body[0].id}/retry`)
+      .set("Authorization", `Bearer ${token}`);
+    assert.equal(retried.status, 200);
+    assert.equal(retried.body.status, "done");
+
+    const items = await request(api)
+      .get("/items")
+      .set("Authorization", `Bearer ${token}`);
+    assert.equal(items.body[0].status, "complete");
+  });
+});

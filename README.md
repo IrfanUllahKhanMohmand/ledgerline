@@ -27,8 +27,11 @@ docker compose up --build
 GET  /health
 POST /auth/register   { "email": "maya@example.com", "password": "at-least-8" }
 POST /auth/login      { "email": "maya@example.com", "password": "at-least-8" }
-POST /items           { "title": "Cafe receipt", "notes": "optional" }
+POST /items                  { "title": "Cafe receipt", "notes": "optional" }
 GET  /items
+POST /items/:id/upload       { "imageKey": "receipts/abc.jpg" }
+GET  /upload-jobs
+POST /upload-jobs/:id/retry
 ```
 
 Item routes need `Authorization: Bearer <token>`.

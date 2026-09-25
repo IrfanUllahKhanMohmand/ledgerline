@@ -1,7 +1,12 @@
 import express from "express";
 
 import { readAccessToken, secretFrom, signAccessToken } from "./auth/token.js";
-import { LedgerStore, serializeItem, serializeUser } from "./store/ledger-store.js";
+import {
+  LedgerStore,
+  serializeItem,
+  serializeUploadJob,
+  serializeUser,
+} from "./store/ledger-store.js";
 
 export type AppOptions = {
   store?: LedgerStore;
@@ -94,6 +99,49 @@ export function createApp(options: AppOptions = {}) {
       return;
     }
     res.json(store.listItems(user.id).map(serializeItem));
+  });
+
+  app.post("/items/:id/upload", async (req, res) => {
+    const user = await currentUser(req);
+    if (!user) {
+      res.status(401).json({ error: "missing token" });
+      return;
+    }
+    try {
+      const imageKey =
+        typeof req.body?.imageKey === "string" ? req.body.imageKey : "";
+      const job = store.startUpload(user.id, req.params.id, imageKey);
+      res.status(202).json(serializeUploadJob(job));
+    } catch (error) {
+      res.status(400).json({
+        error: error instanceof Error ? error.message : "invalid upload",
+      });
+    }
+  });
+
+  app.get("/upload-jobs", async (req, res) => {
+    const user = await currentUser(req);
+    if (!user) {
+      res.status(401).json({ error: "missing token" });
+      return;
+    }
+    res.json(store.listUploadJobs(user.id).map(serializeUploadJob));
+  });
+
+  app.post("/upload-jobs/:id/retry", async (req, res) => {
+    const user = await currentUser(req);
+    if (!user) {
+      res.status(401).json({ error: "missing token" });
+      return;
+    }
+    try {
+      const job = store.retryUpload(user.id, req.params.id);
+      res.json(serializeUploadJob(job));
+    } catch (error) {
+      res.status(400).json({
+        error: error instanceof Error ? error.message : "invalid retry",
+      });
+    }
   });
 
   return app;
